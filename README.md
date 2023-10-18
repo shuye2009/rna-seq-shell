@@ -4,11 +4,11 @@ The main program for this pipeline is 'STARandRSEM_pipeline.sh'.
 
 First run './STARandRSEM_pipeline.sh' to get information about all the arguments:
  
-Enter: 'fastqc', 'trim', 'job', 'trimqc' or 'trimjob' for the first argument
-Enter: '1' or '2' for the second argument (number of lanes)
-Enter: something like 'R1_001.fastq.gz R2_001.fastq.gz' for the third argument (postfix), depending on your file name pattern
-Enter: 'true' for paired-end library or 'false' for single-end library
-Enter: path to working directory
+Enter: 'fastqc', 'trim', 'job', 'trimqc' or 'trimjob' for the first argument \
+Enter: '1' or '2' for the second argument (number of lanes) \
+Enter: something like 'R1_001.fastq.gz R2_001.fastq.gz' for the third argument (postfix), depending on your file name pattern \
+Enter: 'true' for paired-end library or 'false' for single-end library \
+Enter: path to working directory \
 Enter: 'none', 'forward' or 'reverse' for library type. For Illumina TruSeq Stranded protocols, please use 'reverse'
 
 The first argument specify what operation will be performed. 
