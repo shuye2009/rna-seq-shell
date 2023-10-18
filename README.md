@@ -10,7 +10,8 @@ Enter: 'fastqc', 'trim', 'job', 'trimqc' or 'trimjob' for the first argument \
 Enter: '1' or '2' for the second argument (number of lanes) \
 Enter: 'R1_001.fastq.gz R2_001.fastq.gz' for the third argument (postfix) \
 Enter: 'true' for paired-end or 'false' for single-end \
-Enter: working directory \
+Enter: path to working directory \
+Enter: 'none', 'forward' or 'reverse' for library type. For Illumina TruSeq Stranded protocols, please use 'reverse'
 Enter: 'none', 'forward' or 'reverse'. For Illumina TruSeq Stranded protocols, please use 'reverse' \
 Enter: walltime for cluster jobs, default 24 \
 Enter: ncore for cluster jobs, default 10 \
