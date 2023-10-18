@@ -18,3 +18,5 @@ Each operation has to be run separately.
 Usually start with 'fastqc', if the results are okay, then run 'job'. If not, then run 'trim' followed by 'trimqc', if the results look good, then run 'trimjob', otherwise adjust trim parameters (you have to modify the 'trim_adapt()' function of the script), and run 'trimqc' followed by 'trimjob'.
 
 The 'job' or 'trimjob' have to be run at least twice, the first time is for STAR alignment, the second time for RSEM. Or if some cluster job fails due to exceeding resources limits, run again by increasing memory or wall time in the script.
+
+When 'job' or 'trimjob' are re-run, only failed ones are re-run, successfully finished jobs will not be re-run to save time and resources.
