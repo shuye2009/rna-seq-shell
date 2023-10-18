@@ -7,9 +7,11 @@ prefix=$2
 wd=$3
 index=$4 # $HOME/GRCH38_gencode/STARindex
 gtf=$5 # $HOME/GRCH38_gencode/gencode.v35.primary_assembly.annotation.gtf
+ncore=$6 
+
 cd $wd
 mkdir -p $prefix
-STAR	--runThreadN 10 \
+STAR	--runThreadN $ncore \
 	--runMode alignReads \
 	--genomeDir $index \
 	--sjdbGTFfile $gtf \

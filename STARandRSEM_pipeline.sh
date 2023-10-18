@@ -5,9 +5,12 @@ function trim_adapt(){
 	local infiles=$1
 	local prefix=$2
 	local paired=$3
+	local walltime=$4
+	local ncore=$5
+	local memory=$6
 
 	if $paired; then
-	 submitjob -c 10 -m 20 cutadapt \
+	 submitjob -c $ncore -m $memory cutadapt \
                         -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
                         -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT \
 			-j 10 \
@@ -16,7 +19,7 @@ function trim_adapt(){
                         -o trimmed.${prefix}_R1.fastq.gz -p trimmed.${prefix}_R2.fastq.gz \
                         $infiles
  	else
-	 submitjob -c 10 -m 20 cutadapt \
+	 submitjob -c $ncore -m $memory cutadapt \
                         -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
                         -j 10 \
                         -q 20 \
@@ -38,15 +41,18 @@ function run_job(){
 	local infiles=$8
 	local paired=$9
 	local stranded=${10}
+	local walltime=${11}
+        local ncore=${12}
+        local memory=${13}
 	
        	if [ ! -s "$wd/$prefix/ReadsPerGene.out.tab" ]; then
                 echo "$wd/$prefix alignment results does not exist!"
-                submitjob -w 100 -c 10 -m 40 $star "$infiles" $prefix $wd $index $gtf
+                submitjob -w $walltime -c $ncore -m $memory $star "$infiles" $prefix $wd $index $gtf $ncore
         else
                 echo "$wd/$prefix alignment succeeded"
                 if [ ! -s "$wd/$prefix/rsem_out/${prefix}.genes.results" ]; then
                         echo "$wd/$prefix RSEM results does not exist!"
-                       submitjob -w 50 -c 10 -m 40  $rsem $prefix $wd $rsemrf $paired $stranded
+                       submitjob -w $walltime -c $ncore -m $memory  $rsem $prefix $wd $rsemrf $paired $stranded $ncore
                 else
                         #rm $wd/$prefix/rsem_out/*.bam*
                         rm $wd/$prefix/*.bam*
@@ -94,6 +100,9 @@ function perform_operation(){
    	local postfix=($8)
 	local paired=${9}
 	local stranded=${10}
+	local walltime=${11}
+        local ncore=${12}
+        local memory=${13}
 
 	cd $wd
 
@@ -117,20 +126,20 @@ function perform_operation(){
 		if [[ $prefix != "*" ]]; then
                 	if [[ $operation == "qc" ]]; then
                                 mkdir -p fastqc_result
-                                submitjob -m 10 fastqc $f1 -o fastqc_result
-                                if $paired; then submitjob -m 10 fastqc $f2 -o fastqc_result; fi
+                                submitjob -m $memory fastqc $f1 -o fastqc_result
+                                if $paired; then submitjob -m $memory fastqc $f2 -o fastqc_result; fi
 			elif [[ $operation == "job" ]]; then
-                                run_job "$wd" "$prefix" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$infiles" $paired $stranded
+                                run_job "$wd" "$prefix" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$infiles" $paired $stranded $walltime $ncore $memory
                         elif [[ $operation == "trim" ]]; then
-                                trim_adapt "$infiles" "$prefix" $paired
+                                trim_adapt "$infiles" "$prefix" $paired  $walltime $ncore $memory
                         elif [[ $operation == "trimqc" ]]; then
                                 mkdir -p fastqc_result
-                                submitjob -m 10 fastqc trimmed.${prefix}_R1.fastq.gz -o fastqc_result
-                                if $paired; then submitjob -m 10 fastqc trimmed.${prefix}_R2.fastq.gz -o fastqc_result; fi
+                                submitjob -m $memory fastqc trimmed.${prefix}_R1.fastq.gz -o fastqc_result
+                                if $paired; then submitjob -m $memory fastqc trimmed.${prefix}_R2.fastq.gz -o fastqc_result; fi
                         elif [[ $operation == "trimjob" ]]; then
 				infiles="trimmed.${prefix}_R1.fastq.gz"
 				if $paired; then infiles="trimmed.${prefix}_R1.fastq.gz trimmed.${prefix}_R2.fastq.gz"; fi
-                                run_job "$wd" "$prefix" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$infiles" $paired $stranded
+                                run_job "$wd" "$prefix" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$infiles" $paired $stranded $walltime $ncore $memory
                         else
                                 echo "operation option only takes 'qc', 'trim', 'job', 'trimqc' and 'trimjob'"
                                 exit 1
@@ -156,13 +165,16 @@ function main(){
         local postfix=($9)
         local paired=${10}
         local stranded=${11}
+	local walltime=${12}
+        local ncore=${13}
+        local memory=${14}
 
 	cd $wd
 
         if [[ -z $Nlane ]]; then $Nlane=1; fi
 	if [[ $Nlane == 2 ]]; then postfix=$(cat_fastq $paired $postfix); fi
 
-	perferm_operation "$wd" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$operation" "$postfix" $paired $stranded
+	perferm_operation "$wd" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$operation" "$postfix" $paired $stranded $walltime $ncore $memory
 }
 operation=$1
 Nlane=$2
@@ -170,6 +182,13 @@ postfix=$3
 paired=$4
 wd=$5
 stranded=$6
+walltime=$7
+ncore=$8
+memory=$9
+
+if [[ -z $walltime ]]; then walltime=24; fi
+if [[ -z $ncore ]]; then ncore=10; fi
+if [[ -z $memory ]]; then memory=20; fi
 
 star=$HOME/RNAseq_scripts/STARalignment.sh
 rsem=$HOME/RNAseq_scripts/RSEM_analysis.sh
@@ -185,9 +204,12 @@ if [[ $# -lt 6 ]]; then
 		echo "Enter: 'true' for paired-end or 'false' for single-end"
 		echo "Enter: working directory"
 		echo "Enter: 'none', 'forward' or 'reverse'. For Illumina TruSeq Stranded protocols, please use 'reverse'"
-                exit 1
+                echo "Enter: walltime for cluster jobs, default 24"
+		echo "Enter: ncore for cluster jobs, default 10"
+		echo "Enter: memory for cluster jobs, default 20"
+		exit 1
 fi
 
-main "$wd" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$operation" "$Nlane" "$postfix" $paired $stranded
+main "$wd" "$star" "$rsem" "$index" "$gtf" "$rsemrf" "$operation" "$Nlane" "$postfix" $paired $stranded $walltime $ncore $memory
 
 ##END
