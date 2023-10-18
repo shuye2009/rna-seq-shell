@@ -16,7 +16,7 @@ Enter: walltime for cluster jobs, default 24 \
 Enter: ncore for cluster jobs, default 10 \
 Enter: memory for cluster jobs, default 20 
 
-The first argument specify what operation will be performed. 
+The first argument specifies what operation will be performed. 
 
 Each operation has to be run separately. 
 
