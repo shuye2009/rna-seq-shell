@@ -6,14 +6,14 @@ The main program for this pipeline is 'STARandRSEM_pipeline.sh'.
 
 First run './STARandRSEM_pipeline.sh' to get information about all the arguments:
 
-Enter: 'fastqc', 'trim', 'job', 'trimqc' or 'trimjob' for the first argument
-Enter: '1' or '2' for the second argument (number of lanes)
-Enter: 'R1_001.fastq.gz R2_001.fastq.gz' for the third argument (postfix)
-Enter: 'true' for paired-end or 'false' for single-end
-Enter: working directory
-Enter: 'none', 'forward' or 'reverse'. For Illumina TruSeq Stranded protocols, please use 'reverse'
-Enter: walltime for cluster jobs, default 24
-Enter: ncore for cluster jobs, default 10
+Enter: 'fastqc', 'trim', 'job', 'trimqc' or 'trimjob' for the first argument \
+Enter: '1' or '2' for the second argument (number of lanes) \
+Enter: 'R1_001.fastq.gz R2_001.fastq.gz' for the third argument (postfix) \
+Enter: 'true' for paired-end or 'false' for single-end \
+Enter: working directory \
+Enter: 'none', 'forward' or 'reverse'. For Illumina TruSeq Stranded protocols, please use 'reverse' \
+Enter: walltime for cluster jobs, default 24 \
+Enter: ncore for cluster jobs, default 10 \
 Enter: memory for cluster jobs, default 20 
 
 The first argument specify what operation will be performed. 
